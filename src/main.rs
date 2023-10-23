@@ -65,10 +65,39 @@ impl Board {
     }
 }
 struct Result {}
-struct Player {}
+struct Goal {
+    row : Option<Row>,
+}
+impl Goal {
+    fn has_row(&self) -> bool {
+        match self.row {
+            Some(_) => true,
+            None => false
+        }
+    }
+}
+struct Player {
+    goal : Option<Goal>,
+    rows : Vec<Row>,
+}
 impl Player {
     fn has_goal(&self) -> bool {
-        true
+        match self.goal {
+            Some(_) => true,
+            None => false,
+        }
+    }
+    fn has_row(&self) -> bool {
+        match self.rows.get(0) {
+            Some(_) => true,
+            None => false,
+        }
+    }
+    fn has_start_row(&self) -> bool {
+        match self.rows.get(0) {
+            Some(_) => true,
+            None => false,
+        }
     }
 }
 struct Round { 
@@ -153,13 +182,30 @@ fn main() {
                     space: Some( Space {
                         middle: true,
                         piece: Some( Piece {} ),
-                    } ),
-                } ), 
+                    }),
+                }), 
             }),
             round : Some( Round {
-                player : Some(Player {}),
+                player : Some(Player {
+                    rows : vec![ Row {
+                        index: 0,
+                        space: Some( Space {
+                            middle: true,
+                            piece: Some( Piece {} ),
+                        }),
+                    }],
+                    goal : Some(Goal {
+                        row : Some ( Row {
+                            index: 0,
+                            space: Some( Space {
+                                middle: true,
+                                piece: Some( Piece {} ),
+                            }),
+                        }),
+                    }),
+                }),
                 result : Some(Result {}),
-            } )
+            }),
         }),
     };
     assert!(table.exists());
@@ -174,8 +220,12 @@ fn main() {
     assert!(round.has_player());
     assert!(round.has_result());
     let player = round.player.expect("no player for round");
-    assert!(player.has_goal());
+    assert!(player.has_row());
     // the player's piece starts in the middle of their first row of spaces
+    assert!(player.has_start_row());
+    assert!(player.has_goal());
+    let goal = player.goal.expect("no goal for player");
+    assert!(goal.has_row());
     let board = game.board.expect("game has no board");
     assert!(board.has_row());
     let row = board.row.expect("board has no row");
