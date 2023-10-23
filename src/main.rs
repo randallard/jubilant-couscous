@@ -24,8 +24,23 @@
 struct Person {}
 struct Player {}
 struct Piece {}
-struct Space {}
+struct Space {
+    middle : bool,
+    piece : Option<Piece>,
+}
+impl Space {
+    fn has_piece(&self) -> bool {
+        match self.piece {
+            Some(_) => true,
+            None => false,
+        }
+    }
+    fn is_middle(&self) -> bool {
+        self.middle
+    }
+}
 struct Row {
+    index : usize,
     space : Option<Space>,
 }
 impl Row {
@@ -34,6 +49,9 @@ impl Row {
             Some(_) => true,
             None => false,
         }
+    }
+    fn is_first(&self) -> bool {
+        self.index == 0
     }
 }
 struct Board {
@@ -47,10 +65,12 @@ impl Board {
         }
     }
 }
+struct Round { }
 struct Game {
     players : Vec<Player>,
     pieces : Vec<Piece>,
     board : Option<Board>,
+    round : Option<Round>,
 }
 impl Game {
     fn has_player(&self) -> bool {
@@ -69,6 +89,12 @@ impl Game {
         match self.board {
             Some(_) => true,
             None => false
+        }
+    }
+    fn has_round(&self) -> bool {
+        match self.round {
+            Some(_) => true,
+            None => false,
         }
     }
 }
@@ -108,9 +134,14 @@ fn main() {
             pieces : vec![ Piece {} ],
             board : Some(Board { 
                 row: Some( Row {
-                    space: Some( Space {} ),
+                    index: 0,
+                    space: Some( Space {
+                        middle: true,
+                        piece: Some( Piece {} ),
+                    } ),
                 } ), 
             }),
+            round : Some( Round {} )
         }),
     };
     assert!(table.exists());
@@ -121,10 +152,16 @@ fn main() {
     assert!(game.has_player());
     assert!(game.has_piece());
     assert!(game.has_board());
-    // the players piece starts in the middle of their first row of spaces
+    assert!(game.has_round());
+    // the player's piece starts in the middle of their first row of spaces
     let board = game.board.expect("game has no board");
     assert!(board.has_row());
     let row = board.row.expect("board has no row");
     assert!(row.has_space());
+    assert!(row.is_first());
+    let space = row.space.expect("row has no space");
+    assert!(space.has_piece());
+    assert!(space.is_middle());
+    // next line: 
     println!("Hello, Bash Dash!");
 }
