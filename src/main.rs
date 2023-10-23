@@ -19,10 +19,9 @@
 //      - round ends when
 //          - opponnents collide
 //          - player moves into a space that contains an oponnent's blocker
-//          - player leaves the board on the other side
+//          - player reaches goal on the other side from where they started
 
 struct Person {}
-struct Player {}
 struct Piece {}
 struct Space {
     middle : bool,
@@ -65,20 +64,37 @@ impl Board {
         }
     }
 }
-struct Round { }
+struct Result {}
+struct Player {}
+impl Player {
+    fn has_goal(&self) -> bool {
+        true
+    }
+}
+struct Round { 
+    player : Option<Player>,
+    result : Option<Result>,
+}
+impl Round {
+    fn has_player(&self) -> bool {
+        match self.player {
+            Some(_) => true,
+            None => false,
+        }
+    }
+    fn has_result(&self) -> bool {
+        match self.result {
+            Some(_) => true,
+            None => false,
+        }
+    }
+}
 struct Game {
-    players : Vec<Player>,
     pieces : Vec<Piece>,
     board : Option<Board>,
     round : Option<Round>,
 }
 impl Game {
-    fn has_player(&self) -> bool {
-        match self.players.get(0) {
-            Some(_) => true,
-            None => false,
-        }
-    }
     fn has_piece(&self) -> bool {
         match self.pieces.get(0) {
             Some(_) => true,
@@ -129,11 +145,10 @@ impl Table {
 fn main() {
     let table = Table { 
         people : vec![ Person{}, Person{} ],
-        game: Some(Game{ 
-            players : vec![ Player {} ],
+        game: Some( Game { 
             pieces : vec![ Piece {} ],
-            board : Some(Board { 
-                row: Some( Row {
+            board : Some( Board { 
+                row : Some( Row {
                     index: 0,
                     space: Some( Space {
                         middle: true,
@@ -141,7 +156,10 @@ fn main() {
                     } ),
                 } ), 
             }),
-            round : Some( Round {} )
+            round : Some( Round {
+                player : Some(Player {}),
+                result : Some(Result {}),
+            } )
         }),
     };
     assert!(table.exists());
@@ -149,10 +167,14 @@ fn main() {
     assert!(table.has_another_person());
     assert!(table.has_game());
     let game = table.game.expect("table has no game");
-    assert!(game.has_player());
     assert!(game.has_piece());
     assert!(game.has_board());
     assert!(game.has_round());
+    let round = game.round.expect("no round for game");
+    assert!(round.has_player());
+    assert!(round.has_result());
+    let player = round.player.expect("no player for round");
+    assert!(player.has_goal());
     // the player's piece starts in the middle of their first row of spaces
     let board = game.board.expect("game has no board");
     assert!(board.has_row());
@@ -162,6 +184,6 @@ fn main() {
     let space = row.space.expect("row has no space");
     assert!(space.has_piece());
     assert!(space.is_middle());
-    // next line: 
+    // next line: player reaches goal
     println!("Hello, Bash Dash!");
 }
