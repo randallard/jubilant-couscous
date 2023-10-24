@@ -28,6 +28,7 @@ struct Space {
     piece : Option<Piece>,
 }
 impl Space {
+    fn exists(&self) -> bool { true }
     fn has_piece(&self) -> bool {
         match self.piece {
             Some(_) => true,
@@ -39,26 +40,12 @@ impl Space {
     }
 }
 struct Row {
-    index : usize,
     space : Option<Space>,
 }
 impl Row {
+    fn exists(&self) -> bool { true }
     fn has_space(&self) -> bool {
         match self.space {
-            Some(_) => true,
-            None => false,
-        }
-    }
-    fn is_first(&self) -> bool {
-        self.index == 0
-    }
-}
-struct Board {
-    row : Option<Row>,
-}
-impl Board {
-    fn has_row(&self) -> bool {
-        match self.row {
             Some(_) => true,
             None => false,
         }
@@ -120,18 +107,11 @@ impl Round {
 }
 struct Game {
     pieces : Vec<Piece>,
-    board : Option<Board>,
     round : Option<Round>,
 }
 impl Game {
     fn has_piece(&self) -> bool {
         match self.pieces.get(0) {
-            Some(_) => true,
-            None => false
-        }
-    }
-    fn has_board(&self) -> bool {
-        match self.board {
             Some(_) => true,
             None => false
         }
@@ -176,19 +156,9 @@ fn main() {
         people : vec![ Person{}, Person{} ],
         game: Some( Game { 
             pieces : vec![ Piece {} ],
-            board : Some( Board { 
-                row : Some( Row {
-                    index: 0,
-                    space: Some( Space {
-                        middle: true,
-                        piece: Some( Piece {} ),
-                    }),
-                }), 
-            }),
             round : Some( Round {
                 player : Some(Player {
                     rows : vec![ Row {
-                        index: 0,
                         space: Some( Space {
                             middle: true,
                             piece: Some( Piece {} ),
@@ -196,7 +166,6 @@ fn main() {
                     }],
                     goal : Some(Goal {
                         row : Some ( Row {
-                            index: 0,
                             space: Some( Space {
                                 middle: true,
                                 piece: Some( Piece {} ),
@@ -212,9 +181,8 @@ fn main() {
     assert!(table.has_person());
     assert!(table.has_another_person());
     assert!(table.has_game());
-    let game = table.game.expect("table has no game");
+    let game = table.game.expect("no game for table");
     assert!(game.has_piece());
-    assert!(game.has_board());
     assert!(game.has_round());
     let round = game.round.expect("no round for game");
     assert!(round.has_player());
@@ -222,18 +190,17 @@ fn main() {
     let player = round.player.expect("no player for round");
     assert!(player.has_row());
     // the player's piece starts in the middle of their first row of spaces
+    let start_row = player.rows.get(0).expect("no start row for player");
+    assert!(start_row.exists());
+    assert!(start_row.has_space());
+    let start_space : &Space = start_row.space.as_ref().expect("no space for row");
+    assert!(start_space.exists());
+    assert!(start_space.is_middle());
+    assert!(start_space.has_piece());
     assert!(player.has_start_row());
     assert!(player.has_goal());
     let goal = player.goal.expect("no goal for player");
     assert!(goal.has_row());
-    let board = game.board.expect("game has no board");
-    assert!(board.has_row());
-    let row = board.row.expect("board has no row");
-    assert!(row.has_space());
-    assert!(row.is_first());
-    let space = row.space.expect("row has no space");
-    assert!(space.has_piece());
-    assert!(space.is_middle());
     // next line: player reaches goal
     println!("Hello, Bash Dash!");
 }
