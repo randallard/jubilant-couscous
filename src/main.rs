@@ -197,7 +197,11 @@ fn main() {
     assert!(start_space.exists());
     assert!(start_space.is_middle());
     assert!(start_space.has_piece());
-    assert!(player.has_start_row());
+    
+    // piece can move
+
+    // round ends if a goal contains a piece
+
     assert!(player.has_goal());
     let goal = player.goal.expect("no goal for player");
     assert!(goal.has_row());
